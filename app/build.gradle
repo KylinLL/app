@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
@@ -6,13 +6,23 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
     defaultConfig {
-        applicationId "com.example.kylin.myapplication"
+        // applicationId "com.example.kylin.myapplication"
         minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        jackOptions {
+            enabled false
+        }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -31,7 +41,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-def siteUrl = 'https://github.com/smuyyh/BankCardFormat'    // Git项目主页
+def siteUrl = 'https://github.com/KylinLL/app'    // Git项目主页
 def gitUrl = 'https://github.com/KylinLL/app.git' // Git仓库url
 group = "com.example.kylin" // 一般为包名
 
@@ -41,7 +51,7 @@ install {
         pom {
             project {
                 packaging 'aar'
-                name 'Android BankCardFormat' // 项目描述
+                name 'Android Login' // 项目描述
                 url siteUrl
                 licenses {
                     license {
@@ -51,9 +61,9 @@ install {
                 }
                 developers {
                     developer { // 开发者个人信息
-                        id 'smuyyh'
-                        name 'smuyyh'
-                        email 'smuyyh@gmail.com'
+                        id 'kylin'
+                        name 'kylin'
+                        email 'kylin@zju.edu.cn'
                     }
                 }
                 scm {
@@ -65,35 +75,46 @@ install {
         }
     }
 }
+
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
 }
+
 task javadoc(type: Javadoc) {
     options.encoding = "UTF-8" // 设置编码，否则中文可能会提示出错
     source = android.sourceSets.main.java.srcDirs
+    classpath += configurations.compile
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
+
 artifacts {
-    archives javadocJar
     archives sourcesJar
+    archives javadocJar
 }
+
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 bintray {
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.apikey")
+
     configurations = ['archives']
+
+    dryRun = false
+    publish = true
+
     pkg {
         repo = "maven" // 发布到Maven库
-        name = "BankCardFormat" // 发布到JCenter上的项目名字
+        name = "app" // 发布到JCenter上的项目名字
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
-        publish = true
     }
 }
